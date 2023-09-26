@@ -1,0 +1,7 @@
+{
+  "name": "gifsly",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
