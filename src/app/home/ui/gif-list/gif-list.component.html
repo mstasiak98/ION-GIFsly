@@ -1,6 +1,6 @@
 <ion-list lines="none">
   <div class="gif" *ngFor="let gif of gifs; trackBy: trackByFn">
-    <ion-item button detail="false">
+    <ion-item button detail="false" (click)="playVideo($event, gif)">
       <ion-spinner color="light" *ngIf="gif.loading"></ion-spinner>
       <div
         [style.background]="
@@ -8,7 +8,7 @@
         "
         [ngStyle]="!gif.dataLoaded
           ? {
-              filter: 'blur(3px) brightness(0.6)',
+              filter: 'brightness(0.6)',
               transform: 'scale(1.1)'
             }
           : {}
@@ -25,7 +25,7 @@
         ></video>
 
       </div>
-      <ion-label>{{ gif.title }}</ion-label>
-    </ion-item>
+    </ion-item>        <ion-label>{{ gif.title }}</ion-label>
+
   </div>
 </ion-list>
