@@ -1,6 +1,8 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {RedditService} from "../shared/data-access/reddit/reddit.service";
-import {BehaviorSubject, combineLatest, map} from "rxjs";
+import {BehaviorSubject, combineLatest, map, startWith} from "rxjs";
+import {Gif, Settings} from "../shared/models";
+import {FormBuilder, FormControl} from "@angular/forms";
 
 @Component({
   selector: 'app-home',
@@ -10,11 +12,15 @@ import {BehaviorSubject, combineLatest, map} from "rxjs";
 })
 export class HomePage {
 
+  subredditFormControl = new FormControl('gifs');
+
   currentlyLoadingGifs$ = new BehaviorSubject<string[]>([]);
   loadedGifs$ = new BehaviorSubject<string[]>([]);
 
+  settingsPopoverIsOpen$ = new BehaviorSubject<boolean>(false);
+
   gifs$ = combineLatest([
-    this.redditService.getGifs(),
+    this.redditService.getGifs(this.subredditFormControl),
     this.currentlyLoadingGifs$,
     this.loadedGifs$
   ]).pipe(
@@ -23,11 +29,21 @@ export class HomePage {
         ...gif,
         loading: currentlyLoadingGifs.includes(gif.permalink),
         dataLoaded: loadedGifs.includes(gif.permalink)
-      }))
+      } as Gif))
     )
   );
 
-  constructor(private redditService: RedditService) {}
+  vm$ = combineLatest([
+    this.gifs$.pipe(startWith([])),
+    this.settingsPopoverIsOpen$
+  ]).pipe(
+      map(([gifs, popoverIsOpen]) => ({
+        gifs,
+        popoverIsOpen
+      } as { gifs: Gif[], popoverIsOpen: boolean }))
+  );
+
+  constructor(private redditService: RedditService, private fb: FormBuilder) {}
 
   setLoading(permalink: string) {
     this.currentlyLoadingGifs$.next([
@@ -47,5 +63,9 @@ export class HomePage {
         (permalink) => !this.loadedGifs$.value.includes(permalink)
       )
     ]);
+  }
+
+  loadMore(ev: Event, currentGifs: Gif[]) {
+    this.redditService.nextPage(ev, currentGifs[currentGifs.length - 1].name);
   }
 }

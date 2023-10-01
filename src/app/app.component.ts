@@ -1,4 +1,5 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {SettingsService} from "./shared/data-access/settings/settings.service";
 
 @Component({
   selector: 'app-root',
@@ -6,6 +7,12 @@ import {ChangeDetectionStrategy, Component} from '@angular/core';
   styleUrls: ['app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
-  constructor() {}
+export class AppComponent implements OnInit {
+  constructor(private settingsService: SettingsService) {}
+
+
+  ngOnInit() {
+    this.settingsService.init();
+  }
+
 }

@@ -1,16 +1,44 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ng-container *ngIf="vm$ | async as vm">
+  <ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+      <app-search-bar
+        [subredditFormControl]="subredditFormControl"
+      ></app-search-bar>
+      <ion-buttons slot="end">
+        <ion-button id="settings-button" (click)="settingsPopoverIsOpen$.next(true)">
+          <ion-icon slot="icon-only" name="settings"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
 
-<ion-content [fullscreen]="true">
-  <app-gif-list
-    *ngIf="gifs$ | async as gifs"
-    [gifs]="gifs"
-    (gifLoadStart)="setLoading($event)"
-    (gifLoadComplete)="setLoadingComplete($event)"
-  ></app-gif-list>
-</ion-content>
+
+  <ion-content >
+    <app-gif-list
+      *ngIf="vm.gifs"
+      [gifs]="vm.gifs"
+      (gifLoadStart)="setLoading($event)"
+      (gifLoadComplete)="setLoadingComplete($event)"
+    ></app-gif-list>
+
+    <ion-infinite-scroll
+      threshold="100px"
+      (ionInfinite)="loadMore($event, vm.gifs)"
+    >
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Fetching gifs..."
+      ></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    <ion-popover
+      [isOpen]="vm.popoverIsOpen"
+      (ionPopoverDidDismiss)="settingsPopoverIsOpen$.next(false)"
+    >
+      <ng-template>
+        <app-settings></app-settings>
+      </ng-template>
+    </ion-popover>
+  </ion-content>
+
+</ng-container>
